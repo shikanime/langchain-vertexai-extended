@@ -1,0 +1,13 @@
+[project]
+name = "langchain-vertexai-extended"
+version = "0.1.0"
+description = "Common code for VertexAI and LangChain"
+authors = [
+    {name = "William Phetsinorath", email = "william.phetsinorath@shikanime.studio"},
+]
+dependencies = [
+    "langchain>=0.0.346",
+]
+requires-python = ">=3.10"
+readme = "README.md"
+license = {text = "MIT"}
