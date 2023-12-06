@@ -92,7 +92,7 @@ class VertexAIModelGardenPeft(VertexAIModelGarden):
 # TODO: Support VLLM streaming inference
 class VertexAIModelGardenVllm(VertexAIModelGarden):
     """
-    A class representing large language models served from Vertex AI Model Garden using Peft
+    A class representing large language models served from Vertex AI Model Garden using VLLM
     PyTorch runtime such as LLaMa2.
 
     Attributes:
