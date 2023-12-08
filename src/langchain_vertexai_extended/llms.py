@@ -55,7 +55,9 @@ class VertexAIModelGardenPeft(VertexAIModelGarden):
             top_k=self.top_k,
             **kwargs,
         )
-        return self._parse_prediction(prompts, result)
+        return LLMResult(
+            generations=_normalize_generations(prompts, result.generations)
+        )
 
     async def _agenerate(
         self,
@@ -79,15 +81,10 @@ class VertexAIModelGardenPeft(VertexAIModelGarden):
             top_k=self.top_k,
             **kwargs,
         )
-        return self._parse_prediction(prompts, result)
+        return LLMResult(
+            generations=_normalize_generations(prompts, result.generations)
+        )
 
-    def _parse_prediction(self, prompts, result):
-        generations: List[List[Generation]] = []
-        for prompt, result_generations in zip(prompts, result.generations):
-            for result_candidate_generations in result_generations:
-                text = result_candidate_generations.text[len(prompt) :]
-                generations.append([Generation(text=text)])
-        return LLMResult(generations=generations)
 
 # TODO: Support VLLM streaming inference
 class VertexAIModelGardenVllm(VertexAIModelGarden):
@@ -256,7 +253,9 @@ class VertexAIModelGardenVllm(VertexAIModelGarden):
             spaces_between_special_tokens=self.spaces_between_special_tokens,
             **kwargs,
         )
-        return self._parse_prediction(prompts, result)
+        return LLMResult(
+            generations=_normalize_generations(prompts, result.generations)
+        )
 
     async def _agenerate(
         self,
@@ -299,12 +298,24 @@ class VertexAIModelGardenVllm(VertexAIModelGarden):
             spaces_between_special_tokens=self.spaces_between_special_tokens,
             **kwargs,
         )
-        return self._parse_prediction(prompts, result)
+        return LLMResult(
+            generations=_normalize_generations(prompts, result.generations)
+        )
 
-    def _parse_prediction(self, prompts, result):
-        generations: List[List[Generation]] = []
-        for prompt, result_generations in zip(prompts, result.generations):
-            for result_candidate_generations in result_generations:
-                text = result_candidate_generations.text[len(prompt) :]
-                generations.append([Generation(text=text)])
-        return LLMResult(generations=generations)
+
+def _normalize_generations(
+    prompts: List[str], generations: List[List[Generation]]
+) -> List[List[Generation]]:
+    return [
+        [Generation(text=_normalize_text(result_generations))]
+        for prompt, result_generations in zip(prompts, generations)
+    ]
+
+
+def _normalize_text(generations: List[Generation]) -> str:
+    text = map(lambda x: x.text, generations)
+    text = "".join(text)
+    text = text[text.find("Output:") :]
+    text = text[len("Output:") :]
+    text = text.strip()
+    return text
