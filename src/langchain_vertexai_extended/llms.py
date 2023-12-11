@@ -332,4 +332,4 @@ def _strip_generation_context(
 
 
 def _format_generation_context(prompt: str) -> str:
-    return "\n".join(["Prompt:", prompt.strip(), "Output:", ""])
+    return "\n".join(["Prompt:", prompt, "Output:", prompt])
