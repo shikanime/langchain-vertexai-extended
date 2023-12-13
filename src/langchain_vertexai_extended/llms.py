@@ -61,8 +61,8 @@ class VertexAIModelGardenPeft(VertexAIModelGarden):
         generations: List[List[GenerationChunk]] = []
         for prompt, result in zip(prompts, result.generations):
             chunks = [GenerationChunk(text=prediction.text) for prediction in result]
-            chunks = _strip_generation_context(prompt, chunks)
-            generation = _aggregate_response(
+            chunks = self._strip_generation_context(prompt, chunks)
+            generation = self._aggregate_response(
                 chunks,
                 run_manager=run_manager,
                 verbose=self.verbose,
@@ -97,14 +97,56 @@ class VertexAIModelGardenPeft(VertexAIModelGarden):
         generations: List[List[GenerationChunk]] = []
         for prompt, result in zip(prompts, result.generations):
             chunks = [GenerationChunk(text=prediction.text) for prediction in result]
-            chunks = _strip_generation_context(prompt, chunks)
-            generation = _aggregate_response(
+            chunks = self._strip_generation_context(prompt, chunks)
+            generation = self._aggregate_response(
                 chunks,
                 run_manager=run_manager,
                 verbose=self.verbose,
             )
             generations.append([generation])
         return LLMResult(generations=generations)
+
+    def _aggregate_response(
+        self,
+        chunks: List[Generation],
+        run_manager: Optional[CallbackManagerForLLMRun] = None,
+        verbose: bool = False,
+    ) -> GenerationChunk:
+        final_chunk: Optional[GenerationChunk] = None
+        for chunk in chunks:
+            if final_chunk is None:
+                final_chunk = chunk
+            else:
+                final_chunk += chunk
+            if run_manager:
+                run_manager.on_llm_new_token(
+                    chunk.text,
+                    verbose=verbose,
+                )
+        if final_chunk is None:
+            raise ValueError("Malformed response from VertexAIModelGarden")
+        return final_chunk
+
+    def _strip_generation_context(
+        self,
+        prompt: str,
+        chunks: List[GenerationChunk],
+    ) -> List[GenerationChunk]:
+        context = self._format_generation_context(prompt)
+        chunk_cursor = 0
+        context_cursor = 0
+        while chunk_cursor < len(chunks) and context_cursor < len(context):
+            chunk = chunks[chunk_cursor]
+            for c in chunk.text:
+                if c == context[context_cursor]:
+                    context_cursor += 1
+                else:
+                    break
+            chunk_cursor += 1
+        return chunks[chunk_cursor:] if chunk_cursor == context_cursor else chunks
+
+    def _format_generation_context(self, prompt: str) -> str:
+        return "\n".join(["Prompt:", prompt, "Output:", prompt])
 
 
 # TODO: Support VLLM streaming inference
@@ -235,8 +277,8 @@ class VertexAIModelGardenVllm(VertexAIModelGarden):
         generations: List[List[GenerationChunk]] = []
         for prompt, result in zip(prompts, result.generations):
             chunks = [GenerationChunk(text=prediction.text) for prediction in result]
-            chunks = _strip_generation_context(prompt, chunks)
-            generation = _aggregate_response(
+            chunks = self._strip_generation_context(prompt, chunks)
+            generation = self._aggregate_response(
                 chunks,
                 run_manager=run_manager,
                 verbose=self.verbose,
@@ -282,8 +324,8 @@ class VertexAIModelGardenVllm(VertexAIModelGarden):
         generations: List[List[GenerationChunk]] = []
         for prompt, result in zip(prompts, result.generations):
             chunks = [GenerationChunk(text=prediction.text) for prediction in result]
-            chunks = _strip_generation_context(prompt, chunks)
-            generation = _aggregate_response(
+            chunks = self._strip_generation_context(prompt, chunks)
+            generation = self._aggregate_response(
                 chunks,
                 run_manager=run_manager,
                 verbose=self.verbose,
@@ -291,45 +333,44 @@ class VertexAIModelGardenVllm(VertexAIModelGarden):
             generations.append([generation])
         return LLMResult(generations=generations)
 
-
-def _aggregate_response(
-    chunks: List[Generation],
-    run_manager: Optional[CallbackManagerForLLMRun] = None,
-    verbose: bool = False,
-) -> GenerationChunk:
-    final_chunk: Optional[GenerationChunk] = None
-    for chunk in chunks:
-        if final_chunk is None:
-            final_chunk = chunk
-        else:
-            final_chunk += chunk
-        if run_manager:
-            run_manager.on_llm_new_token(
-                chunk.text,
-                verbose=verbose,
-            )
-    if final_chunk is None:
-        raise ValueError("Malformed response from VertexAIModelGarden")
-    return final_chunk
-
-
-def _strip_generation_context(
-    prompt: str,
-    chunks: List[GenerationChunk],
-) -> List[GenerationChunk]:
-    context = _format_generation_context(prompt)
-    chunk_cursor = 0
-    context_cursor = 0
-    while chunk_cursor < len(chunks) and context_cursor < len(context):
-        chunk = chunks[chunk_cursor]
-        for c in chunk.text:
-            if c == context[context_cursor]:
-                context_cursor += 1
+    def _aggregate_response(
+        self,
+        chunks: List[Generation],
+        run_manager: Optional[CallbackManagerForLLMRun] = None,
+        verbose: bool = False,
+    ) -> GenerationChunk:
+        final_chunk: Optional[GenerationChunk] = None
+        for chunk in chunks:
+            if final_chunk is None:
+                final_chunk = chunk
             else:
-                break
-        chunk_cursor += 1
-    return chunks[chunk_cursor:] if chunk_cursor == context_cursor else chunks
+                final_chunk += chunk
+            if run_manager:
+                run_manager.on_llm_new_token(
+                    chunk.text,
+                    verbose=verbose,
+                )
+        if final_chunk is None:
+            raise ValueError("Malformed response from VertexAIModelGarden")
+        return final_chunk
 
+    def _strip_generation_context(
+        self,
+        prompt: str,
+        chunks: List[GenerationChunk],
+    ) -> List[GenerationChunk]:
+        context = self._format_generation_context(prompt)
+        chunk_cursor = 0
+        context_cursor = 0
+        while chunk_cursor < len(chunks) and context_cursor < len(context):
+            chunk = chunks[chunk_cursor]
+            for c in chunk.text:
+                if c == context[context_cursor]:
+                    context_cursor += 1
+                else:
+                    break
+            chunk_cursor += 1
+        return chunks[chunk_cursor:] if chunk_cursor == context_cursor else chunks
 
-def _format_generation_context(prompt: str) -> str:
-    return "\n".join(["Prompt:", prompt, "Output:", prompt])
+    def _format_generation_context(self, prompt: str) -> str:
+        return "\n".join(["Prompt:", prompt, "Output:", ""])
