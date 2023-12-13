@@ -3,9 +3,8 @@
 
 [metadata]
 groups = ["default"]
-cross_platform = true
-static_urls = false
-lock_version = "4.3"
+strategy = ["cross_platform"]
+lock_version = "4.4"
 content_hash = "sha256:86ce6ed9364b363c3ffa550afd3984a45d4b8e9c1e5cfd598b3b5c945e56906e"
 
 [[package]]
@@ -327,18 +326,17 @@ files = [
 
 [[package]]
 name = "langchain"
-version = "0.0.346"
+version = "0.0.348"
 requires_python = ">=3.8.1,<4.0"
 summary = "Building applications with LLMs through composability"
 dependencies = [
     "PyYAML>=5.3",
     "SQLAlchemy<3,>=1.4",
     "aiohttp<4.0.0,>=3.8.3",
-    "anyio<4.0",
     "async-timeout<5.0.0,>=4.0.0; python_version < \"3.11\"",
     "dataclasses-json<0.7,>=0.5.7",
     "jsonpatch<2.0,>=1.33",
-    "langchain-core<0.1,>=0.0.10",
+    "langchain-core<0.1,>=0.0.12",
     "langsmith<0.1.0,>=0.0.63",
     "numpy<2,>=1",
     "pydantic<3,>=1",
@@ -346,24 +344,28 @@ dependencies = [
     "tenacity<9.0.0,>=8.1.0",
 ]
 files = [
-    {file = "langchain-0.0.346-py3-none-any.whl", hash = "sha256:0c1cd6865d68a07ff7247e49cf85039984271c20b41346b7f4df9c22994966bf"},
-    {file = "langchain-0.0.346.tar.gz", hash = "sha256:ea0f5fcfaf2371954f5e0368c847ac884d5223bbd2b015931b514199e99a5ea6"},
+    {file = "langchain-0.0.348-py3-none-any.whl", hash = "sha256:35ab72d9e2b9c48d6782f10ec400a9783eaa3c8a6e54fa1cbe0f195c425b3008"},
+    {file = "langchain-0.0.348.tar.gz", hash = "sha256:06ac3ab1cdaa7b55497ccae55119559a6b6e870b92dedddc0172be8796dca09d"},
 ]
 
 [[package]]
 name = "langchain-core"
-version = "0.0.10"
+version = "0.0.12"
 requires_python = ">=3.8.1,<4.0"
 summary = "Building applications with LLMs through composability"
 dependencies = [
+    "PyYAML>=5.3",
+    "anyio<5,>=3",
     "jsonpatch<2.0,>=1.33",
     "langsmith<0.1.0,>=0.0.63",
+    "packaging<24.0,>=23.2",
     "pydantic<3,>=1",
+    "requests<3,>=2",
     "tenacity<9.0.0,>=8.1.0",
 ]
 files = [
-    {file = "langchain_core-0.0.10-py3-none-any.whl", hash = "sha256:a194f6c27b44432901a8c493f0efc4e9cda66e018c227876a563922f451892f6"},
-    {file = "langchain_core-0.0.10.tar.gz", hash = "sha256:d1850245902cc38bf18000acc8c93cf7714452ff9825ac0c7119d5da43f1bb50"},
+    {file = "langchain_core-0.0.12-py3-none-any.whl", hash = "sha256:7dd7379c3848f9473c93b71992d96ab73b4889c1951bf3d899417b849ba0236c"},
+    {file = "langchain_core-0.0.12.tar.gz", hash = "sha256:9c6cca4ed25a10950071be80dc62921b30caafae73ac1bd4b93d9f070967a7b2"},
 ]
 
 [[package]]
