@@ -146,7 +146,7 @@ class VertexAIModelGardenPeft(VertexAIModelGarden):
         return chunks[chunk_cursor:] if chunk_cursor == context_cursor else chunks
 
     def _format_generation_context(self, prompt: str) -> str:
-        return "\n".join(["Prompt:", prompt, "Output:", prompt])
+        return "\n".join(["Prompt:", prompt.strip(), "Output:", prompt])
 
 
 # TODO: Support VLLM streaming inference
@@ -373,4 +373,4 @@ class VertexAIModelGardenVllm(VertexAIModelGarden):
         return chunks[chunk_cursor:] if chunk_cursor == context_cursor else chunks
 
     def _format_generation_context(self, prompt: str) -> str:
-        return "\n".join(["Prompt:", prompt, "Output:", ""])
+        return "\n".join(["Prompt:", prompt.strip(), "Output:", ""])
