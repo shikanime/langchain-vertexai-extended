@@ -177,8 +177,6 @@ class VertexAIModelGardenVllm(VertexAIModelGarden):
             the model more random. Zero means greedy sampling.
         top_p (float): Float that controls the cumulative probability of the top tokens
             to consider. Must be in (0, 1]. Set to 1 to consider all tokens.
-        top_k (int): Integer that controls the number of top tokens to consider. Set
-            to -1 to consider all tokens.
         use_beam_search (bool): Whether to use beam search instead of sampling.
         length_penalty (float): Float that penalizes sequences based on their length.
             Used in beam search.
@@ -203,7 +201,6 @@ class VertexAIModelGardenVllm(VertexAIModelGarden):
     frequency_penalty: float = 0.0
     temperature: float = 1.0
     top_p: float = 1.0
-    top_k: int = -1
     use_beam_search: bool = False
     length_penalty: float = 1.0
     stop_token_ids: Optional[List[int]] = None
