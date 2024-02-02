@@ -1,4 +1,4 @@
-from typing import Any, List, Optional, Union
+from typing import Any, List, Optional
 
 from langchain.callbacks.manager import CallbackManagerForLLMRun
 from langchain.llms.vertexai import VertexAIModelGarden
@@ -12,12 +12,21 @@ class VertexAIModelGardenPeft(VertexAIModelGarden):
 
     Attributes:
         max_length (int): Token limit determines the maximum amount of text output from one prompt.
+        max_new_tokens (int): Maximum number of tokens to generate per output sequence.
         top_k (int): How the model selects tokens for output, the next token is selected from
             among the top-k most probable tokens. Top-k is ignored for Code models.
+        temperature (float): Float that controls the randomness of the sampling. Lower
+            values make the model more deterministic, while higher values make
+            the model more random. Zero means greedy sampling.
+        top_p (float): Float that controls the cumulative probability of the top tokens
+            to consider. Must be in (0, 1]. Set to 1 to consider all tokens.
     """
 
     max_length: int = 200
+    max_new_tokens: Optional[int] = None
     top_k: int = 40
+    temperature: float = 1.0
+    top_p: float = 1.0
 
     def __init__(self, **kwargs):
         """
@@ -29,7 +38,10 @@ class VertexAIModelGardenPeft(VertexAIModelGarden):
         super().__init__(
             allowed_model_args=[
                 "max_length",
+                "max_new_tokens",
                 "top_k",
+                "temperature",
+                "top_p",
             ],
             **kwargs,
         )
@@ -55,7 +67,10 @@ class VertexAIModelGardenPeft(VertexAIModelGarden):
         result = super()._generate(
             prompts=prompts,
             max_length=self.max_length,
+            max_new_tokens=self.max_new_tokens,
             top_k=self.top_k,
+            temperature=self.temperature,
+            top_p=self.top_p,
             **kwargs,
         )
         generations: List[List[GenerationChunk]] = []
@@ -91,7 +106,10 @@ class VertexAIModelGardenPeft(VertexAIModelGarden):
         result = await super()._agenerate(
             prompts=prompts,
             max_length=self.max_length,
+            max_new_tokens=self.max_new_tokens,
             top_k=self.top_k,
+            temperature=self.temperature,
+            top_p=self.top_p,
             **kwargs,
         )
         generations: List[List[GenerationChunk]] = []
